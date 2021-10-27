@@ -1,14 +1,13 @@
 const test = require("tape");
 const Item = require("../src/item");
-const Shop = require("../src/shop");
+const updateQuality = require("../src/shop");
 
 function verify({itemName, sellIn, quality}) {
     return function(t) {
         // given
         const item = new Item(itemName, sellIn.before, quality.before);
-        const shop = new Shop([item]);
         // when
-        const updatedItem = shop.updateQuality([item])[0];
+        const updatedItem = updateQuality([item])[0];
 
         // then
         t.equal(updatedItem.sellIn, sellIn.after);

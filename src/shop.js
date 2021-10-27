@@ -12,18 +12,12 @@ const update = {
     "Conjured Mana Cake": Conjured
 };
 
-class Shop {
-    constructor(items = []) {
-        this.items = items;
-    }
-
-    updateItem(item) {
-        return (update[item.name] || Normal)(item)
-    }
-
-    updateQuality() {
-        return this.items.map(this.updateItem);
-    }
+function updateItem(item) {
+    return (update[item.name] || Normal)(item)
 }
 
-module.exports = Shop;
+function updateQuality(items) {
+    return items.map(updateItem);
+}
+
+module.exports = updateQuality;
