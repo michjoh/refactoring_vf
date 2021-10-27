@@ -1,14 +1,14 @@
-const Item = require("./item");
+function update(originalItem) {
+    const item = {...originalItem};
 
-class Backstage extends Item {
-    update() {
-        this.quality += 1;
-        if (this.sellIn <= 10) this.quality += 1;
-        if (this.sellIn <= 5) this.quality += 1;
-        if (this.quality > 50) this.quality = 50;
-        if (this.sellIn <= 0) this.quality = 0;
-        this.sellIn -= 1;
-    }
+    item.quality += 1;
+    if (item.sellIn <= 10) item.quality += 1;
+    if (item.sellIn <= 5) item.quality += 1;
+    if (item.quality > 50) item.quality = 50;
+    if (item.sellIn <= 0) item.quality = 0;
+    item.sellIn -= 1;
+
+    return item;
 }
 
-module.exports = Backstage;
+module.exports = update;

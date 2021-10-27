@@ -1,29 +1,28 @@
 const Normal = require("./normal");
 const Brie = require("./brie");
 const Backstage = require("./backstage");
+const Conjured = require("./conjured");
 const Item = require("./item");
 
-const classes = {
+
+const update = {
     "Aged Brie": Brie,
-    "Sulfuras, Hand of Ragnaros": Item,
-    "Backstage passes to a TAFKAL80ETC concert": Backstage
+    "Sulfuras, Hand of Ragnaros": item => item,
+    "Backstage passes to a TAFKAL80ETC concert": Backstage,
+    "Conjured Mana Cake": Conjured
 };
 
 class Shop {
     constructor(items = []) {
-        this.items = items.map(this.classFor);
+        this.items = items;
     }
 
-    classFor(item) {
-        return new (classes[item.name] || Normal)(item.name, item.sellIn, item.quality)
+    updateItem(item) {
+        return (update[item.name] || Normal)(item)
     }
 
     updateQuality() {
-        this.items.forEach(item => {
-            item.update();
-        });
-
-        return this.items;
+        return this.items.map(this.updateItem);
     }
 }
 

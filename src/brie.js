@@ -1,13 +1,13 @@
-const Item = require("./item");
+function update(originalItem) {
+    const item = {...originalItem};
 
-class Brie extends Item {
-    update() {
-        if (this.sellIn > 0) this.quality += 1;
-        if (this.sellIn <= 0) this.quality += 2;
-        if (this.quality > 50) this.quality = 50;
+    if (item.sellIn > 0) item.quality += 1;
+    if (item.sellIn <= 0) item.quality += 2;
+    if (item.quality > 50) item.quality = 50;
 
-        this.sellIn -= 1;
-    }
+    item.sellIn -= 1;
+
+    return item;
 }
 
-module.exports = Brie;
+module.exports = update;

@@ -142,3 +142,27 @@ test("backstage passes with quality close to 50", verify({
     sellIn: {before: 1, after: 0},
     quality: {before: 49, after: 50},
 }));
+
+test("conjured item before sell date", verify({
+    itemName: "Conjured Mana Cake",
+    sellIn: {before: 2, after: 1},
+    quality: {before: 10, after: 8}
+}));
+
+test("conjured item with small quality", verify({
+    itemName: "Conjured Mana Cake",
+    sellIn: {before: 2, after: 1},
+    quality: {before: 1, after: 0}
+}));
+
+test("conjured item after sell date", verify({
+    itemName: "Conjured Mana Cake",
+    sellIn: {before: 0, after: -1},
+    quality: {before: 4, after: 0}
+}));
+
+test("conjured item with zero quality", verify({
+    itemName: "Conjured Mana Cake",
+    sellIn: {before: 0, after: -1},
+    quality: {before: 0, after: 0}
+}));
