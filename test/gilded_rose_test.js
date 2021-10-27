@@ -1,11 +1,10 @@
 const test = require("tape");
-const Item = require("../src/item");
 const updateQuality = require("../src/shop");
 
 function verify({itemName, sellIn, quality}) {
     return function(t) {
         // given
-        const item = new Item(itemName, sellIn.before, quality.before);
+        const item = {name: itemName, sellIn: sellIn.before, quality: quality.before};
         // when
         const updatedItem = updateQuality([item])[0];
 
