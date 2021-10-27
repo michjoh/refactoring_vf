@@ -2,260 +2,143 @@ const test = require("tape");
 const Item = require("../src/item");
 const Shop = require("../src/shop");
 
+function verify({itemName, sellIn, quality}) {
+    return function(t) {
+        // given
+        const item = new Item(itemName, sellIn.before, quality.before);
+        const shop = new Shop([item]);
+        // when
+        const updatedItem = shop.updateQuality([item])[0];
+
+        // then
+        t.equal(updatedItem.sellIn, sellIn.after);
+        t.equal(updatedItem.quality, quality.after);
+        t.end();
+    };
+}
+
+// data driven tests/ table tests
+// [
+//     ["normal item...", "+5 Dext...", ["sellIn", 10, 9], ["quality", 20, 19]],
+//     ["normal item...", "+5 Dext...", ["sellIn", 10, 9], ["quality", 20, 19]],
+//     ["normal item...", "+5 Dext...", ["sellIn", 10, 9], ["quality", 20, 19]],
+//     ["normal item...", "+5 Dext...", ["sellIn", 10, 9], ["quality", 20, 19]],
+//     ["normal item...", "+5 Dext...", ["sellIn", 10, 9], ["quality", 20, 19]],
+// ].forEach(([name, itemName, [_, sellInBefore, sellInAfter], [_, qualityBefore, qualityAfter]]) => {
+//     test(name, verify({
+//         itemName,
+//         sellIn: {before: sellInBefore, after: sellInAfter},
+//         quality: {before: qualityBefore, after: qualityAfter},
+//     }));
+// });
+
 test("normal item before sell date", verify({
     itemName: "+5 Dexterity Vest",
     sellIn: {before: 10, after: 9},
     quality: {before: 20, after: 19},
 }));
 
-test("normal item before sell data", function(t) {
-    // given
-    const item = new Item('+5 Dexterity Vest', 10, 20);
-    const shop = new Shop([item]);
+test("normal item on sell date",  verify({
+    itemName: "+5 Dexterity Vest",
+    sellIn: {before: 1, after: 0},
+    quality: {before: 20, after: 19},
+}));
 
-    // when
-    shop.updateQuality();
+test("normal item after sell date with low quality", verify({
+        itemName: "+5 Dexterity Vest",
+        sellIn: {before: 0, after: -1},
+        quality: {before: 1, after: 0}
+    })
+);
 
-    // then
-    t.equal(item.sellIn, 9);
-    t.equal(item.quality, 19);
-    t.end();
-});
+test("normal item after sell date", verify({
+    itemName: "+5 Dexterity Vest",
+    sellIn: {before: 0, after: -1},
+    quality: {before: 20, after: 18}
 
-test("normal item on sell date", function (t) {
-    // given
-    const item = new Item("+5 Dexterity Vest", 1, 20);
-    const shop = new Shop([item]);
+}));
 
-    // when
-    shop.updateQuality();
+test("normal item of zero quality never goes below zero", verify({
+    itemName: "+5 Dexterity Vest",
+    sellIn: {before: 2, after: 1},
+    quality: {before: 0, after: 0}
+}));
 
-    // then
-    t.equal(item.sellIn, 0);
-    t.equal(item.quality, 19);
-    t.end()
-});
+test("brie increases in quality over time", verify({
+    itemName: "Aged Brie",
+    sellIn: {before: 1, after: 0},
+    quality: {before: 0, after: 1}
+}));
 
-test("normal item after sell date with low quality", function (t) {
-    // given
-    const item = new Item("+5 Dexterity Vest", 0, 0);
-    const shop = new Shop([item]);
+test("brie increases in quality up to 50", verify({
+    itemName: "Aged Brie",
+    sellIn: {before: 1, after: 0},
+    quality: {before: 49, after: 50}
+}));
 
-    // when
-    shop.updateQuality();
+test("brie never increases quality of 50", verify({
+    itemName: "Aged Brie",
+    sellIn: {before: 1, after: 0},
+    quality: {before: 50, after: 50}
+}));
 
-    // then
-    t.equal(item.sellIn, -1);
-    t.equal(item.quality, 0);
-    t.end()
-});
+test("brie increses quality faster past sellIn", verify({
+    itemName: "Aged Brie",
+    sellIn: {before: -1, after: -2},
+    quality: {before: 30, after: 32}
+}));
 
-test("normal item after sell date", function (t) {
-    // given
-    const item = new Item("+5 Dexterity Vest", 0, 20);
-    const shop = new Shop([item]);
+test("sulfuras never decrease in quality and sellIn never changes", verify({
+    itemName: "Sulfuras, Hand of Ragnaros",
+    sellIn: {before: 1, after: 1},
+    quality: {before: 10, after: 10}
+}));
 
-    // when
-    shop.updateQuality();
+test("backstage passes over 10 days to concert", verify({
+    itemName: "Backstage passes to a TAFKAL80ETC concert",
+    sellIn: {before: 11, after: 10},
+    quality: {before: 10, after: 11}
+}));
 
-    // then
-    t.equal(item.sellIn, -1);
-    t.equal(item.quality, 18);
-    t.end();
-});
+test("backstage passes with 10 days to concert", verify({
+    itemName: "Backstage passes to a TAFKAL80ETC concert",
+    sellIn: {before: 10, after: 9},
+    quality: {before: 10, after: 12}
+}));
 
-test("normal item of zero quality never goes below zero", function (t) {
-    // given
-    const item = new Item("+5 Dexterity Vest", 2, 0);
-    const shop = new Shop([item]);
+test("backstage passes with 6 days to concert", verify({
+    itemName: "Backstage passes to a TAFKAL80ETC concert",
+    sellIn: {before: 6, after: 5},
+    quality: {before: 10, after: 12}
+}));
 
-    // when
-    shop.updateQuality();
+test("backstage passes with 5 days to concert", verify({
+    itemName: "Backstage passes to a TAFKAL80ETC concert",
+    sellIn: {before: 5, after: 4},
+    quality: {before: 10, after: 13}
+}));
 
-    // then
-    t.equal(item.sellIn, 1);
-    t.equal(item.quality, 0);
-    t.end();
-});
+test("backstage passes with 1 day to concert", verify({
+    itemName: "Backstage passes to a TAFKAL80ETC concert",
+    sellIn: {before: 1, after: 0},
+    quality: {before: 10, after: 13}
+}));
 
-test("brie increases in quality over time", function (t) {
-    // given
-    const item = new Item("Aged Brie", 1, 0);
-    const shop = new Shop([item]);
+test("backstage passes with 0 days to concert", verify({
+    itemName: "Backstage passes to a TAFKAL80ETC concert",
+    sellIn: {before: 0, after: -1},
+    quality: {before: 10, after: 0}
 
-    // when
-    shop.updateQuality();
+}));
 
-    // then
-    t.equal(item.sellIn, 0);
-    t.equal(item.quality, 1);
-    t.end();
-});
+test("backstage passes with quality close to 50", verify({
+    itemName: "Backstage passes to a TAFKAL80ETC concert",
+    sellIn: {before: 1, after: 0},
+    quality: {before: 48, after: 50}
+}));
 
-test("brie increases in quality faster after sell in", function (t) {
-    // given
-    const item = new Item("Aged Brie", 0, 0);
-    const shop = new Shop([item]);
-
-    // when
-    shop.updateQuality();
-
-    // then
-    t.equal(item.sellIn, -1);
-    t.equal(item.quality, 2);
-    t.end();
-});
-
-test("brie increases in quality up to 50", function (t) {
-    // given
-    const item = new Item("Aged Brie", 1, 49);
-    const shop = new Shop([item]);
-
-    // when
-    shop.updateQuality();
-
-    // then
-    t.equal(item.sellIn, 0);
-    t.equal(item.quality, 50);
-    t.end();
-});
-
-test("brie never increases quality of 50", function (t) {
-    // given
-    const item = new Item("Aged Brie", 1, 50);
-    const shop = new Shop([item]);
-
-    // when
-    shop.updateQuality();
-
-    // then
-    t.equal(item.sellIn, 0);
-    t.equal(item.quality, 50);
-    t.end();
-});
-
-test("sulfuras never decrease in quality and sellIn never changes", function (t) {
-    // given
-    const item = new Item("Sulfuras, Hand of Ragnaros", 1, 10);
-    const shop = new Shop([item]);
-
-    // when
-    shop.updateQuality();
-
-    // then
-    t.equal(item.sellIn, 1);
-    t.equal(item.quality, 10);
-    t.end();
-});
-
-test("backstage passes over 10 days to concert", function (t) {
-    // given
-    const item = new Item("Backstage passes to a TAFKAL80ETC concert", 11, 10);
-    const shop = new Shop([item]);
-
-    // when
-    shop.updateQuality();
-
-    // then
-    t.equal(item.sellIn, 10);
-    t.equal(item.quality, 11);
-    t.end()
-});
-
-test("backstage passes with 10 days to concert", function (t) {
-    // given
-    const item = new Item("Backstage passes to a TAFKAL80ETC concert", 10, 10);
-    const shop = new Shop([item]);
-
-    // when
-    shop.updateQuality();
-
-    // then
-    t.equal(item.sellIn, 9);
-    t.equal(item.quality, 12);
-    t.end();
-});
-
-test("backstage passes with 6 days to concert", function (t) {
-    // given
-    const item = new Item("Backstage passes to a TAFKAL80ETC concert", 6, 10);
-    const shop = new Shop([item]);
-
-    // when
-    shop.updateQuality();
-
-    // then
-    t.equal(item.sellIn, 5);
-    t.equal(item.quality, 12);
-    t.end();
-});
-
-test("backstage passes with 5 days to concert", function (t) {
-    // given
-    const item = new Item("Backstage passes to a TAFKAL80ETC concert", 5, 10);
-    const shop = new Shop([item]);
-
-    // when
-    shop.updateQuality();
-
-    // then
-    t.equal(item.sellIn, 4);
-    t.equal(item.quality, 13);
-    t.end();
-});
-
-test("backstage passes with 1 day to concert", function (t) {
-    // given
-    const item = new Item("Backstage passes to a TAFKAL80ETC concert", 1, 10);
-    const shop = new Shop([item]);
-
-    // when
-    shop.updateQuality();
-
-    // then
-    t.equal(item.sellIn, 0);
-    t.equal(item.quality, 13);
-    t.end();
-});
-
-test("backstage passes with 0 days to concert", function (t) {
-    // given
-    const item = new Item("Backstage passes to a TAFKAL80ETC concert", 0, 10);
-    const shop = new Shop([item]);
-
-    // when
-    shop.updateQuality();
-
-    // then
-    t.equal(item.sellIn, -1);
-    t.equal(item.quality, 0);
-    t.end();
-});
-
-test("backstage passes with quality close to 50", function (t) {
-    // given
-    const item = new Item("Backstage passes to a TAFKAL80ETC concert", 1, 48);
-    const shop = new Shop([item]);
-
-    // when
-    shop.updateQuality();
-
-    // then
-    t.equal(item.sellIn, 0);
-    t.equal(item.quality, 50);
-    t.end();
-});
-
-test("backstage passes with quality close to 50", function (t) {
-    // given
-    const item = new Item("Backstage passes to a TAFKAL80ETC concert", 1, 49);
-    const shop = new Shop([item]);
-
-    // when
-    shop.updateQuality();
-
-    // then
-    t.equal(item.sellIn, 0);
-    t.equal(item.quality, 50);
-    t.end();
-});
+test("backstage passes with quality close to 50", verify({
+    itemName: "Backstage passes to a TAFKAL80ETC concert",
+    sellIn: {before: 1, after: 0},
+    quality: {before: 49, after: 50},
+}));
