@@ -1,8 +1,10 @@
 {
   "scripts": {
-    "test": "tape test/*.js | tap-diff"
+    "test": "tape test/*.js | tap-diff",
+    "coverage": "nyc tape test/*.js && nyc report --reporter=html"
   },
   "devDependencies": {
+    "nyc": "15.1.0",
     "tap-diff": "0.1.1",
     "tape": "5.3.1"
   }
