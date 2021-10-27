@@ -2,6 +2,12 @@ const test = require("tape");
 const Item = require("../src/item");
 const Shop = require("../src/shop");
 
+test("normal item before sell date", verify({
+    itemName: "+5 Dexterity Vest",
+    sellIn: {before: 10, after: 9},
+    quality: {before: 20, after: 19},
+}));
+
 test("normal item before sell data", function(t) {
     // given
     const item = new Item('+5 Dexterity Vest', 10, 20);
