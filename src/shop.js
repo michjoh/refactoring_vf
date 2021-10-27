@@ -14,11 +14,32 @@ class Shop {
         item.sellIn -= 1;
     }
 
+    // * decrease sellIn by 1
+    // * increase quality by 1 when sellIn > 0
+    // * increase quality by 2 when sellIn <= 0
+    // * never increase quality above 50
+    brieUpdate(item) {
+        if(item.sellIn > 0) item.quality += 1;
+        if(item.sellIn <= 0) item.quality += 2;
+        if(item.quality > 50) item.quality = 50;
+        item.sellIn -= 1;
+    }
+
+    // * never decrease in quality
+    // * never decrease in sellIn date
+    sulfurasUpdate(item) {}
+
     updateQuality() {
         this.items.forEach(item => {
 
             if(item.name === "+5 Dexterity Vest") {
                 return this.normalUpdate(item);
+            }
+            if(item.name === "Aged Brie") {
+                return this.brieUpdate(item);
+            }
+            if(item.name === "Sulfuras, Hand of Ragnaros") {
+                return this.sulfurasUpdate(item);
             }
 
             if (item.name != 'Aged Brie' && item.name != 'Backstage passes to a TAFKAL80ETC concert') {
