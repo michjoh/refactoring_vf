@@ -3,21 +3,19 @@ const Brie = require("./brie");
 const Backstage = require("./backstage");
 const Item = require("./item");
 
+const classes = {
+    "Aged Brie": Brie,
+    "Sulfuras, Hand of Ragnaros": Item,
+    "Backstage passes to a TAFKAL80ETC concert": Backstage
+};
+
 class Shop {
     constructor(items = []) {
         this.items = items.map(this.classFor);
     }
 
     classFor(item) {
-        if (item.name === "Aged Brie") {
-            return new Brie(item.name, item.sellIn, item.quality);
-        } else if (item.name === "Sulfuras, Hand of Ragnaros") {
-            return new Item(item.name, item.sellIn, item.quality);
-        } else if (item.name === "Backstage passes to a TAFKAL80ETC concert") {
-            return new Backstage(item.name, item.sellIn, item.quality);
-        } else {
-            return new Normal(item.name, item.sellIn, item.quality);
-        }
+        return new (classes[item.name] || Normal)(item.name, item.sellIn, item.quality)
     }
 
     updateQuality() {
