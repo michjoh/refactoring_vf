@@ -33,8 +33,8 @@ function showHeaderFor(day) {
 function showItemsFor(day) {
     let result = "";
     result += 'name, sellIn, quality\n';
-    for (let j = 0; j < items.length; j++) {
-        const item = items[j];
+    for (let j = 0; j < shop.items.length; j++) {
+        const item = shop.items[j];
         result += (item.name + ', ' + item.sellIn + ', ' + item.quality + "\n");
     }
     return result;
